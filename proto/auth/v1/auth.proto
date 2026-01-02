@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package auth.v1;
+
+option go_package = "github.com/UltraHD-dev/smart-campus-monorepo/proto/auth/v1;authv1";
+
+// TODO: Добавить protobuf сообщения для auth сервиса

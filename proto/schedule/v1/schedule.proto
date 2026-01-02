@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package schedule.v1;
+
+option go_package = "github.com/UltraHD-dev/smart-campus-monorepo/proto/schedule/v1;schedulev1";
+
+// TODO: Добавить protobuf сообщения для schedule сервиса
