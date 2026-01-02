@@ -1,0 +1,94 @@
+package repository
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+// PostgresRepository реализует UserRepository
+type PostgresRepository struct {
+	pool *pgxpool.Pool
+}
+
+func NewPostgresRepository(connStr string) (*PostgresRepository, error) {
+	config, err := pgxpool.ParseConfig(connStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse connection string: %w", err)
+	}
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	// Проверяем подключение
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("database ping failed: %w", err)
+	}
+
+	return &PostgresRepository{pool: pool}, nil
+}
+
+func (r *PostgresRepository) Close() {
+	r.pool.Close()
+}
+
+func (r *PostgresRepository) CreateUser(ctx context.Context, email, passwordHash, fullName, role string) (string, error) {
+	var userID string
+	query := `INSERT INTO users (email, password_hash, full_name, role) 
+              VALUES ($1, $2, $3, $4) RETURNING id`
+
+	err := r.pool.QueryRow(ctx, query, email, passwordHash, fullName, role).Scan(&userID)
+	if err != nil {
+		return "", fmt.Errorf("failed to create user: %w", err)
+	}
+
+	return userID, nil
+}
+
+func (r *PostgresRepository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	var user User
+	query := `SELECT id, email, password_hash, full_name, role, created_at 
+              FROM users WHERE email = $1`
+
+	err := r.pool.QueryRow(ctx, query, email).Scan(
+		&user.ID, &user.Email, &user.PasswordHash,
+		&user.FullName, &user.Role, &user.CreatedAt,
+	)
+
+	if err == pgx.ErrNoRows { // ← ИСПРАВЛЕНО: используем pgx.ErrNoRows вместо sql.ErrNoRows
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	return &user, nil
+}
+
+func (r *PostgresRepository) GetUserByID(ctx context.Context, id string) (*User, error) {
+	var user User
+	query := `SELECT id, email, password_hash, full_name, role, created_at 
+              FROM users WHERE id = $1`
+
+	err := r.pool.QueryRow(ctx, query, id).Scan(
+		&user.ID, &user.Email, &user.PasswordHash,
+		&user.FullName, &user.Role, &user.CreatedAt,
+	)
+
+	if err == pgx.ErrNoRows { // ← ИСПРАВЛЕНО: используем pgx.ErrNoRows вместо sql.ErrNoRows
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	return &user, nil
+}

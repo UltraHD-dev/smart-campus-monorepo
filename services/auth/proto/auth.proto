@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/UltraHD-dev/smart-campus-monorepo/services/auth/proto";
+
+// Сообщение пользователя
+message User {
+  string id = 1;
+  string email = 2;
+  string role = 3;
+  string full_name = 4;
+  string created_at = 5;
+}
+
+// Регистрация
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string full_name = 3;
+  string role = 4; // student, teacher, admin
+}
+
+message RegisterResponse {
+  bool success = 1;
+  string user_id = 2;
+  string error = 3;
+}
+
+// Логин
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  bool success = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  User user = 4;
+  string error = 5;
+}
+
+// Валидация токена
+message ValidateRequest {
+  string token = 1;
+}
+
+message ValidateResponse {
+  bool valid = 1;
+  User user = 2;
+  string error = 3;
+}
+
+// Обновление токена
+message RefreshRequest {
+  string refresh_token = 1;
+}
+
+message RefreshResponse {
+  bool success = 1;
+  string access_token = 2;
+  string error = 3;
+}
+
+// Сервис авторизации
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc ValidateToken(ValidateRequest) returns (ValidateResponse);
+  rpc RefreshToken(RefreshRequest) returns (RefreshResponse);
+}
