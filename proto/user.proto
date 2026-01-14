@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package user;
+option go_package = "github.com/UltraHD-dev/smart-campus-monorepo/internal/gen/user";
+
+service UserService {
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+  rpc SubmitMembershipRequest(SubmitMembershipRequest) returns (SubmitMembershipResponse);
+  rpc GetMembershipStatus(GetMembershipStatusRequest) returns (GetMembershipStatusResponse);
+}
+
+message GetProfileRequest {
+  string user_id = 1;
+}
+
+message GetProfileResponse {
+  User user = 1;
+}
+
+message UpdateProfileRequest {
+  string user_id = 1;
+  string name = 2;
+  string email = 3;
+  map<string, string> metadata = 4;
+}
+
+message UpdateProfileResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message SubmitMembershipRequest {
+  string user_id = 1;
+  string organization_id = 2;
+  string role = 3; // student, teacher, staff
+  string message = 4;
+}
+
+message SubmitMembershipResponse {
+  string application_id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+message GetMembershipStatusRequest {
+  string user_id = 1;
+}
+
+message GetMembershipStatusResponse {
+  repeated MembershipApplication applications = 1;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  string role = 4;
+  string created_at = 5;
+  map<string, string> metadata = 6;
+}
+
+message MembershipApplication {
+  string id = 1;
+  string user_id = 2;
+  string organization_id = 3;
+  string status = 4;
+  string applied_at = 5;
+  string reviewed_at = 6;
+}

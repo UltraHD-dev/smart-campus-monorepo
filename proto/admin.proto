@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package admin;
+option go_package = "github.com/UltraHD-dev/smart-campus-monorepo/internal/gen/admin";
+
+import "organization.proto";
+
+service AdminService {
+  rpc GetPendingApplications(GetPendingApplicationsRequest) returns (GetPendingApplicationsResponse);
+  rpc ReviewApplication(ReviewApplicationRequest) returns (ReviewApplicationResponse);
+  rpc BulkCreateUsers(BulkCreateUsersRequest) returns (BulkCreateUsersResponse);
+  rpc GetStatistics(GetStatisticsRequest) returns (GetStatisticsResponse);
+}
+
+message GetPendingApplicationsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+}
+
+message GetPendingApplicationsResponse {
+  repeated organization.Application applications = 1;
+  int32 total = 2;
+}
+
+message ReviewApplicationRequest {
+  string application_id = 1;
+  string status = 2; // approved, rejected
+  string review_notes = 3;
+}
+
+message ReviewApplicationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message BulkCreateUsersRequest {
+  string organization_id = 1;
+  bytes csv_data = 2;
+}
+
+message BulkCreateUsersResponse {
+  int32 created_count = 1;
+  int32 failed_count = 2;
+  repeated string errors = 3;
+}
+
+message GetStatisticsRequest {}
+
+message GetStatisticsResponse {
+  int32 total_organizations = 1;
+  int32 total_users = 2;
+  int32 pending_applications = 3;
+  int32 active_memberships = 4;
+}

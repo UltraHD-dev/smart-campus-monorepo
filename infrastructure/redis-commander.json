@@ -1,6 +1,0 @@
-{
-  "url": "redis://:campus123@redis:6379",
-  "host": "redis",
-  "port": 6379,
-  "password": "campus123"
-}
